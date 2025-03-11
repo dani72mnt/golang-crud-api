@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/jmoiron/sqlx"
+	"github.com/volatiletech/sqlboiler/v4/boil"
 	"khademi-practice/api"
 	"khademi-practice/config"
 	db "khademi-practice/database"
@@ -23,6 +24,7 @@ func main() {
 		}
 	}(connectDb)
 
+	boil.SetDB(connectDb)
 	migrations.Up(connectDb)
 	log.Println("Migrations completed successfully.")
 

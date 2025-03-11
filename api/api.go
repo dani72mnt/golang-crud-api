@@ -25,6 +25,7 @@ func RegisterRoutes(r *gin.Engine, cfg *config.Config, db *sqlx.DB) {
 
 	{
 		users := v1.Group("/users")
+
 		router.User(users, cfg, db)
 	}
 }

@@ -6,7 +6,7 @@ import (
 )
 
 func (s UserService) Get(ctx context.Context, id int) (dto.UserRes, error) {
-	user, err := s.repo.Get(ctx, id)
+	user, err := s.repo.GetOrm(ctx, id)
 	if err != nil {
 		return dto.UserRes{}, err
 	}
@@ -20,7 +20,7 @@ func (s UserService) Get(ctx context.Context, id int) (dto.UserRes, error) {
 }
 
 func (s UserService) GetAll(ctx context.Context) ([]dto.UserRes, error) {
-	users, err := s.repo.GetAll(ctx)
+	users, err := s.repo.GetAllOrm(ctx)
 	if err != nil {
 		return nil, err
 	}

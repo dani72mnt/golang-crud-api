@@ -3,6 +3,8 @@ package userrepository
 import (
 	"context"
 	"github.com/jmoiron/sqlx"
+	"github.com/volatiletech/sqlboiler/v4/queries/qm"
+	"khademi-practice/config/models"
 	"khademi-practice/dto"
 	"khademi-practice/entity"
 	"time"
@@ -16,6 +18,47 @@ func New(db *sqlx.DB) UserRepository {
 	return UserRepository{
 		db: db,
 	}
+}
+
+func (r UserRepository) GetAllOrm(ctx context.Context) ([]entity.User, error) {
+	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
+	defer cancel()
+
+	users, err := models.Users().All(ctx, r.db)
+	if err != nil {
+		return nil, err
+	}
+
+	var result []entity.User
+	for _, u := range users {
+		result = append(result, entity.User{
+			Id:     u.ID,
+			Name:   u.Name,
+			Family: u.Family,
+			Email:  u.Email,
+		})
+	}
+
+	return result, nil
+}
+
+func (r UserRepository) GetOrm(ctx context.Context, id int) (entity.User, error) {
+	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
+	defer cancel()
+
+	userModel, err := models.Users(qm.Where("id=?", id)).One(ctx, r.db)
+	if err != nil {
+		return entity.User{}, err
+	}
+
+	user := entity.User{
+		Id:     userModel.ID,
+		Name:   userModel.Name,
+		Family: userModel.Family,
+		Email:  userModel.Email,
+	}
+
+	return user, nil
 }
 
 func (r UserRepository) GetAll(ctx context.Context) ([]entity.User, error) {
@@ -85,7 +128,7 @@ func (r UserRepository) Update(ctx context.Context, params dto.UserUpdateReq, id
 	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
 	defer cancel()
 
-	query := `UPDATE users SET name = $1, family = $2, email = $3 WHERE id = $4`
+	query := `UPDATE users SET name = $1, family = $2, email = $3 WHERE id = $5`
 
 	_, err := r.db.ExecContext(ctx, query, params.Name, params.Family, params.Email, id)
 	if err != nil {
