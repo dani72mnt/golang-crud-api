@@ -1,0 +1,12 @@
+server:
+  port: 8090
+postgres:
+  port: 5432
+  host: postgres
+  user: postgres
+  password: admin
+  dbName: shop_db
+  sslMode: disable
+  maxIdleConns: 15
+  maxOpenConns: 100
+  connMaxLifetime: 5
