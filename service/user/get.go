@@ -25,13 +25,24 @@ func (s UserService) GetAll(ctx context.Context) ([]dto.UserRes, error) {
 		return nil, err
 	}
 
-	var userResponses []dto.UserRes
-	for _, user := range users {
+	// use pre-allocation and make func
+	// userResponses := make([]dto.UserRes, 0, len(users))
+	// for _, user := range users { // dont make copies with it is not reasnoable
+	// 	userResponses = append(userResponses, dto.UserRes{
+	// 		Id:     user.Id,
+	// 		Name:   user.Name,
+	// 		Family: user.Family,
+	// 		Email:  user.Email,
+	// 	})
+	// }
+
+	userResponses := make([]dto.UserRes, 0, len(users))
+	for i := range users {
 		userResponses = append(userResponses, dto.UserRes{
-			Id:     user.Id,
-			Name:   user.Name,
-			Family: user.Family,
-			Email:  user.Email,
+			Id:     users[i].Id,
+			Name:   users[i].Name,
+			Family: users[i].Family,
+			Email:  users[i].Email,
 		})
 	}
 

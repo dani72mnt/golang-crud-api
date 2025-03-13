@@ -32,7 +32,7 @@ func ConnectDb(cfg *config.Config) (*sqlx.DB, error) {
 
 	err = DB.Ping()
 	if err != nil {
-		log.Fatalf("Database is unreachable: %v", err)
+		log.Fatal(fmt.Errorf("database is unreachable, err: %w", err)) // wrap
 		return nil, err
 	}
 

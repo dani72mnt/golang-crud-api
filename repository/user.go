@@ -2,13 +2,16 @@ package userrepository
 
 import (
 	"context"
-	"github.com/jmoiron/sqlx"
-	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 	"khademi-practice/config/models"
 	"khademi-practice/dto"
 	"khademi-practice/entity"
 	"time"
+
+	"github.com/jmoiron/sqlx"
+	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
+
+const timeout = 3
 
 type UserRepository struct {
 	db *sqlx.DB
@@ -43,7 +46,7 @@ func (r UserRepository) GetAllOrm(ctx context.Context) ([]entity.User, error) {
 }
 
 func (r UserRepository) GetOrm(ctx context.Context, id int) (entity.User, error) {
-	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
+	ctx, cancel := context.WithTimeout(ctx, timeout*time.Second)
 	defer cancel()
 
 	userModel, err := models.Users(qm.Where("id=?", id)).One(ctx, r.db)
@@ -65,20 +68,22 @@ func (r UserRepository) GetAll(ctx context.Context) ([]entity.User, error) {
 	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
 	defer cancel()
 
-	query := `SELECT id, name, family, email FROM users`
+	query := `SELECT id, name, family, email FROM users` // offset
 	rows, err := r.db.QueryContext(ctx, query)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	var users []entity.User
+	offset := 10 // per_page=10
+	users := make([]entity.User, 0, offset)
+
 	for rows.Next() {
 		var user entity.User
-		err := rows.Scan(&user.Id, &user.Name, &user.Family, &user.Email)
-		if err != nil {
+		if err := rows.Scan(&user.Id, &user.Name, &user.Family, &user.Email); err != nil {
 			return nil, err
 		}
+
 		users = append(users, user)
 	}
 
@@ -90,38 +95,38 @@ func (r UserRepository) GetAll(ctx context.Context) ([]entity.User, error) {
 }
 
 func (r UserRepository) Get(ctx context.Context, id int) (entity.User, error) {
-	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
+	ctx, cancel := context.WithTimeout(ctx, timeout*time.Second)
 	defer cancel()
 
 	query := `SELECT id, name, family, email FROM users WHERE id = $1`
 	var user entity.User
 
-	err := r.db.QueryRowContext(ctx, query, id).Scan(
+	if err := r.db.QueryRowContext(ctx, query, id).Scan(
 		&user.Id,
 		&user.Name,
 		&user.Family,
 		&user.Email,
-	)
-
-	if err != nil {
+	); err != nil {
 		return entity.User{}, err
 	}
 
 	return user, nil
 }
 
-func (r UserRepository) Create(ctx context.Context, params dto.UserCreateReq) error {
+func (r UserRepository) Create(ctx context.Context, params dto.UserCreateReq) (int, error) {
 	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
 	defer cancel()
 
-	query := `INSERT INTO users (name, family, email, password) VALUES ($1, $2, $3, $4)`
+	query := `INSERT INTO users (name, family, email, password) VALUES ($1, $2, $3, $4) RETURNING id`
 
-	_, err := r.db.ExecContext(ctx, query, params.Name, params.Family, params.Email, params.Password)
-	if err != nil {
-		return err
+	var lastInserId int
+
+	if err := r.db.QueryRowContext(ctx, query, params.Name, params.Family, params.Email, params.Password).
+		Scan(&lastInserId); err != nil {
+		return 0, err
 	}
 
-	return nil
+	return lastInserId, nil
 }
 
 func (r UserRepository) Update(ctx context.Context, params dto.UserUpdateReq, id int) (entity.User, error) {

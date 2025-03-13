@@ -13,7 +13,7 @@ type userRepository interface {
 	GetAllOrm(ctx context.Context) ([]entity.User, error)
 	Get(ctx context.Context, id int) (entity.User, error)
 	GetOrm(ctx context.Context, id int) (entity.User, error)
-	Create(ctx context.Context, params dto.UserCreateReq) error
+	Create(ctx context.Context, params dto.UserCreateReq) (int, error)
 	Update(ctx context.Context, params dto.UserUpdateReq, id int) (entity.User, error)
 	Delete(ctx context.Context, id int) error
 }

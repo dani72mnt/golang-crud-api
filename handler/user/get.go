@@ -1,9 +1,11 @@
 package userhandler
 
 import (
-	"github.com/gin-gonic/gin"
+	"khademi-practice/dto"
 	"net/http"
 	"strconv"
+
+	"github.com/gin-gonic/gin"
 )
 
 func (h UserHandler) GetAll(c *gin.Context) {
@@ -17,6 +19,12 @@ func (h UserHandler) GetAll(c *gin.Context) {
 }
 
 func (h UserHandler) Get(c *gin.Context) {
+	var uri dto.UserIDURI
+	if err := c.ShouldBindUri(&uri); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid user ID"})
+		return
+	}
+
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid user ID"})

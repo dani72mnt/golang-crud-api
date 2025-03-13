@@ -1,11 +1,12 @@
 package uservalidator
 
 import (
-	validator "github.com/rezakhademix/govalidator/v2"
 	"khademi-practice/dto"
+
+	validator "github.com/rezakhademix/govalidator/v2"
 )
 
-func (v UserValidator) ValidateUpdateReq(vd validator.Validator, req dto.UserUpdateReq) map[string]string {
+func (v UserValidator) ValidateUpdateReq(vd validator.Validator, req dto.UserUpdateReq) (bool, map[string]string) {
 
 	vd.RequiredString(req.Name, "name", "name is required").
 		MinString(req.Name, 2, "name", "name must be at least 2 characters long").
@@ -18,8 +19,5 @@ func (v UserValidator) ValidateUpdateReq(vd validator.Validator, req dto.UserUpd
 	vd.RequiredString(req.Email, "email", "email is required").
 		Email(req.Email, "email", "invalid email format")
 
-	if vd.IsFailed() {
-		return vd.Errors()
-	}
-	return nil
+	return vd.IsPassed(), vd.Errors()
 }

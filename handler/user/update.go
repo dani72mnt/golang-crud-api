@@ -1,12 +1,13 @@
 package userhandler
 
 import (
-	"github.com/gin-gonic/gin"
-	validator "github.com/rezakhademix/govalidator/v2"
 	"khademi-practice/dto"
 	uservalidator "khademi-practice/validator/user"
 	"net/http"
 	"strconv"
+
+	"github.com/gin-gonic/gin"
+	validator "github.com/rezakhademix/govalidator/v2"
 )
 
 func (h UserHandler) Update(c *gin.Context) {
@@ -23,9 +24,8 @@ func (h UserHandler) Update(c *gin.Context) {
 	}
 
 	vd := validator.New()
-	validationErrors := uservalidator.UserValidator{}.ValidateUpdateReq(vd, req)
-
-	if validationErrors != nil {
+	ok, validationErrors := uservalidator.UserValidator{}.ValidateUpdateReq(vd, req)
+	if !ok {
 		c.JSON(http.StatusBadRequest, gin.H{"validation_errors": validationErrors})
 		return
 	}

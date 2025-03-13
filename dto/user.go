@@ -19,3 +19,7 @@ type UserRes struct {
 	Family string `json:"family"`
 	Email  string `json:"email"`
 }
+
+type UserIDURI struct {
+	ID int `json:"id" uri:"id"`
+}
