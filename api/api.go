@@ -2,10 +2,9 @@ package api
 
 import (
 	"fmt"
+	"github.com/gin-gonic/gin"
 	"khademi-practice/api/router"
 	"khademi-practice/cmd/app"
-
-	"github.com/gin-gonic/gin"
 )
 
 func SetupServer(app *app.Application) {

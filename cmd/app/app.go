@@ -22,6 +22,8 @@ func New(cfg *config.Config, db *sqlx.DB) *Application {
 	userSvc := userservice.New(cfg, userrepository.New(db))
 
 	return &Application{
+		Cfg:         cfg,
+		DB:          db,
 		UserService: userSvc,
 		UserHandler: userhandler.New(userSvc),
 	}

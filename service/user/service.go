@@ -9,7 +9,7 @@ import (
 )
 
 type userRepository interface {
-	GetAll(ctx context.Context) ([]entity.User, error)
+	GetAll(ctx context.Context, page, perPage int) ([]entity.User, error)
 	GetAllOrm(ctx context.Context) ([]entity.User, error)
 	Get(ctx context.Context, id int) (entity.User, error)
 	GetOrm(ctx context.Context, id int) (entity.User, error)

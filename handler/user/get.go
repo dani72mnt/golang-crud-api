@@ -9,7 +9,22 @@ import (
 )
 
 func (h UserHandler) GetAll(c *gin.Context) {
-	users, err := h.userSvc.GetAll(c)
+	pageStr := c.DefaultQuery("page", "1")
+	perPageStr := c.DefaultQuery("per_page", "10")
+
+	page, err := strconv.Atoi(pageStr)
+	if err != nil || page < 1 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid page"})
+		return
+	}
+
+	perPage, err := strconv.Atoi(perPageStr)
+	if err != nil || perPage < 1 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid per_page"})
+		return
+	}
+
+	users, err := h.userSvc.GetAll(c, page, perPage)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "there are no users"})
 		return

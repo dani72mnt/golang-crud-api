@@ -1,11 +1,27 @@
-package main
+package cli
 
-import "log"
+import (
+	"github.com/jmoiron/sqlx"
+	"khademi-practice/config"
+	db "khademi-practice/database"
+	"khademi-practice/database/migrations"
+	"log"
+)
 
 func main() {
-	connectDB()
+	cfg := config.LoadConfig()
+	connectDb, err := db.ConnectDb(cfg)
 
-	// migrate
+	if err != nil {
+		log.Fatalf("Error connecting to connectDb: %v", err)
+	}
+	defer func(db *sqlx.DB) {
+		err := db.Close()
+		if err != nil {
 
-	log.Println("migrate")
+		}
+	}(connectDb)
+
+	migrations.Up(connectDb)
+	log.Println("Migrations completed successfully.")
 }

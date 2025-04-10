@@ -64,19 +64,20 @@ func (r UserRepository) GetOrm(ctx context.Context, id int) (entity.User, error)
 	return user, nil
 }
 
-func (r UserRepository) GetAll(ctx context.Context) ([]entity.User, error) {
+func (r UserRepository) GetAll(ctx context.Context, page, perPage int) ([]entity.User, error) {
 	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
 	defer cancel()
 
-	query := `SELECT id, name, family, email FROM users` // offset
-	rows, err := r.db.QueryContext(ctx, query)
+	offset := (page - 1) * perPage
+
+	query := `SELECT id, name, family, email FROM users LIMIT $1 OFFSET $2`
+	rows, err := r.db.QueryContext(ctx, query, perPage, offset)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	offset := 10 // per_page=10
-	users := make([]entity.User, 0, offset)
+	users := make([]entity.User, 0, perPage)
 
 	for rows.Next() {
 		var user entity.User

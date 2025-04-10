@@ -19,8 +19,8 @@ func (s UserService) Get(ctx context.Context, id int) (dto.UserRes, error) {
 	}, nil
 }
 
-func (s UserService) GetAll(ctx context.Context) ([]dto.UserRes, error) {
-	users, err := s.repo.GetAllOrm(ctx)
+func (s UserService) GetAll(ctx context.Context, page, perPage int) ([]dto.UserRes, error) {
+	users, err := s.repo.GetAll(ctx, page, perPage)
 	if err != nil {
 		return nil, err
 	}
